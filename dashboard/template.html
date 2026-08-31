@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>SIC · Ball in Play 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --celeste:#3FA9DA;
+    --celeste-dark:#1E7BA8;
+    --celeste-pale:#EAF6FC;
+    --negro:#111214;
+    --blanco:#FFFFFF;
+    --gris:#6E7580;
+    --gris-linea:#E4E8EC;
+    --font: 'Mark Pro','Poppins','Century Gothic',-apple-system,sans-serif;
+    --col-w: 56px;
+    --col-gap: 14px;
+    --axis-w: 46px;
+    --plot-h: 230px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--font);
+    background:var(--blanco);
+    color:var(--negro);
+    -webkit-font-smoothing:antialiased;
+  }
+  #app{max-width:1180px;margin:0 auto;padding:28px 24px 60px;}
+
+  /* ---------- Header ---------- */
+  .hdr{
+    display:flex;align-items:center;gap:16px;
+    padding-bottom:20px;margin-bottom:24px;
+    border-bottom:3px solid var(--negro);
+  }
+  .hdr img{width:52px;height:52px;object-fit:contain;flex-shrink:0;}
+  .hdr h1{
+    font-size:22px;font-weight:800;margin:0;letter-spacing:-0.01em;line-height:1.15;
+  }
+  .hdr p{margin:2px 0 0;font-size:13px;color:var(--gris);font-weight:500;}
+  .hdr .tag{
+    margin-left:auto;background:var(--negro);color:var(--blanco);
+    font-size:11px;font-weight:700;padding:6px 12px;border-radius:20px;
+    letter-spacing:.02em;white-space:nowrap;
+  }
+
+  /* ---------- Controls ---------- */
+  .controls{
+    display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:22px;
+  }
+  .field{display:flex;flex-direction:column;gap:6px;}
+  .field label{font-size:11px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:.04em;}
+  select{
+    font-family:inherit;font-size:14px;font-weight:600;color:var(--negro);
+    background:var(--blanco);border:2px solid var(--negro);border-radius:10px;
+    padding:9px 34px 9px 12px;cursor:pointer;min-width:230px;
+    appearance:none;-webkit-appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%23111214' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat:no-repeat;background-position:right 12px center;
+    transition:border-color .15s;
+  }
+  select:hover{border-color:var(--celeste-dark);}
+  select:focus{outline:none;border-color:var(--celeste);}
+
+  /* ---------- Multi-select dropdowns ---------- */
+  .multiselect{position:relative;}
+  .ms-btn{
+    font-family:inherit;font-size:14px;font-weight:600;color:var(--negro);
+    background:var(--blanco);border:2px solid var(--negro);border-radius:10px;
+    padding:9px 34px 9px 12px;cursor:pointer;min-width:230px;text-align:left;
+    display:block;position:relative;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%23111214' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat:no-repeat;background-position:right 12px center;
+    transition:border-color .15s;
+  }
+  .ms-btn:hover{border-color:var(--celeste-dark);}
+  .multiselect.open .ms-btn{border-color:var(--celeste);}
+  .ms-panel{
+    display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:40;
+    background:var(--blanco);border:2px solid var(--negro);border-radius:12px;
+    width:260px;max-height:320px;overflow:hidden;
+    box-shadow:0 10px 26px rgba(17,18,20,.14);
+    flex-direction:column;
+  }
+  .multiselect.open .ms-panel{display:flex;}
+  .ms-search{
+    font-family:inherit;font-size:13px;border:none;border-bottom:2px solid var(--gris-linea);
+    padding:10px 12px;outline:none;flex-shrink:0;
+  }
+  .ms-search:focus{border-bottom-color:var(--celeste);}
+  .ms-actions{
+    display:flex;gap:6px;padding:8px 10px;border-bottom:1px solid var(--gris-linea);flex-shrink:0;
+  }
+  .ms-actions button{
+    font-family:inherit;font-size:11px;font-weight:700;color:var(--celeste-dark);
+    background:var(--celeste-pale);border:none;border-radius:8px;padding:5px 10px;cursor:pointer;
+  }
+  .ms-actions button:hover{background:#D4EBF6;}
+  .ms-list{overflow-y:auto;padding:6px;}
+  .ms-item{
+    display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:8px;cursor:pointer;
+    font-size:13px;font-weight:600;
+  }
+  .ms-item:hover{background:var(--celeste-pale);}
+  .ms-item input{accent-color:var(--celeste-dark);width:15px;height:15px;flex-shrink:0;cursor:pointer;}
+  .ms-item .sub{font-size:10.5px;color:var(--gris);font-weight:600;margin-left:auto;}
+  .ms-empty{padding:14px 10px;font-size:12.5px;color:var(--gris);text-align:center;}
+
+  /* ---------- Summary cards ---------- */
+  .summary{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:26px;
+  }
+  .card{
+    background:var(--celeste-pale);border-radius:14px;padding:16px 18px;
+    border:1px solid #D4EBF6;
+  }
+  .card .label{font-size:11px;font-weight:700;color:var(--celeste-dark);text-transform:uppercase;letter-spacing:.03em;}
+  .card .value{font-size:24px;font-weight:800;margin-top:4px;color:var(--negro);line-height:1.15;}
+  .card .sub{font-size:12px;color:var(--gris);margin-top:3px;font-weight:500;}
+
+  /* ---------- Chart ---------- */
+  .chart-wrap{
+    border:2px solid var(--negro);border-radius:16px;padding:22px 20px 18px;margin-bottom:26px;
+  }
+  .chart-title{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:6px;}
+  .chart-title h2{font-size:16px;font-weight:800;margin:0;}
+  .chart-title .avg-line-note{font-size:12px;color:var(--gris);font-weight:600;}
+
+  .chart-scroll{overflow-x:auto;padding-bottom:4px;}
+  .chart-inner{display:inline-block;min-width:100%;}
+
+  /* row 1: axis + plot area, share one flex row so heights match exactly */
+  .plot-row{display:flex;align-items:stretch;}
+  .yaxis{
+    width:var(--axis-w);flex:0 0 var(--axis-w);height:var(--plot-h);position:relative;
+  }
+  .yaxis span{
+    position:absolute;right:8px;transform:translateY(50%);
+    font-size:10px;color:var(--gris);font-weight:600;
+  }
+  .plot-area{
+    position:relative;height:var(--plot-h);
+    border-bottom:2px solid var(--negro);
+  }
+  .grid-line{
+    position:absolute;left:0;right:0;border-top:1px dashed var(--gris-linea);
+  }
+  .avg-line{
+    position:absolute;left:0;right:0;border-top:2px dashed var(--celeste-dark);z-index:3;
+  }
+  .avg-tag{
+    position:absolute;right:2px;top:-17px;background:var(--celeste-dark);color:var(--blanco);
+    font-size:10px;font-weight:800;padding:2px 7px;border-radius:6px;white-space:nowrap;
+  }
+  .bars-row{
+    position:absolute;left:0;right:0;bottom:0;top:0;
+    display:flex;align-items:flex-end;gap:var(--col-gap);z-index:2;
+  }
+  .bar-col{width:var(--col-w);flex:0 0 var(--col-w);height:100%;display:flex;align-items:flex-end;}
+  .bar{
+    width:100%;border-radius:6px 6px 0 0;background:var(--celeste);
+    position:relative;cursor:pointer;transition:background .15s;
+  }
+  .bar:hover{background:var(--celeste-dark);}
+  .bar.empty{background:#EDEDED;}
+  .bar-val{
+    position:absolute;top:-19px;left:50%;transform:translateX(-50%);
+    font-size:10.5px;font-weight:800;color:var(--negro);white-space:nowrap;
+  }
+
+  /* row 2: logos, row 3: labels — offset by axis width so they align under plot-area */
+  .sub-row{display:flex;}
+  .cols-row{display:flex;gap:var(--col-gap);}
+  .col-cell{width:var(--col-w);flex:0 0 var(--col-w);display:flex;flex-direction:column;align-items:center;}
+  .bar-logo{width:30px;height:30px;object-fit:contain;margin-top:8px;}
+  .bar-label{
+    font-size:9.5px;font-weight:700;color:var(--negro);margin-top:4px;text-align:center;
+    line-height:1.15;width:60px;min-height:23px;
+  }
+
+  /* tooltip */
+  .tooltip{
+    position:fixed;background:var(--negro);color:var(--blanco);padding:9px 12px;border-radius:8px;
+    font-size:12px;font-weight:600;pointer-events:none;z-index:50;display:none;line-height:1.5;
+    box-shadow:0 6px 18px rgba(0,0,0,.25);max-width:220px;
+  }
+  .tooltip b{color:var(--celeste);}
+
+  /* ---------- Leaderboard ---------- */
+  .board{
+    border:2px solid var(--negro);border-radius:16px;padding:20px 20px 8px;
+  }
+  .board h2{font-size:16px;font-weight:800;margin:0 0 4px;}
+  .board .board-sub{font-size:12px;color:var(--gris);font-weight:500;margin-bottom:14px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead th{
+    text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;
+    color:var(--gris);font-weight:700;padding:8px 8px;border-bottom:2px solid var(--negro);
+  }
+  thead th.num, td.num{text-align:right;}
+  tbody td{padding:9px 8px;border-bottom:1px solid var(--gris-linea);font-weight:500;}
+  tbody tr:hover{background:var(--celeste-pale);}
+  tbody td.rank{font-weight:800;color:var(--celeste-dark);width:26px;}
+  tbody td.name{font-weight:700;}
+  .pos-chip{
+    display:inline-block;font-size:10px;font-weight:700;color:var(--celeste-dark);
+    background:var(--celeste-pale);border-radius:10px;padding:2px 8px;margin-left:6px;
+  }
+  .bar-mini{height:6px;border-radius:3px;background:var(--celeste);margin-top:4px;margin-left:auto;}
+
+  footer{margin-top:22px;text-align:center;font-size:11px;color:var(--gris);font-weight:500;}
+
+  @media (max-width:640px){
+    .summary{grid-template-columns:repeat(2,1fr);}
+    select{min-width:150px;}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="hdr">
+    <img id="sicLogo" alt="SIC">
+    <div>
+      <h1>Ball in Play · Temporada 2026</h1>
+      <p>San Isidro Club — seguimiento físico por partido</p>
+    </div>
+    <div class="tag" id="matchCount">19 partidos</div>
+  </div>
+
+  <div class="controls">
+    <div class="field">
+      <label>Puesto</label>
+      <div class="multiselect" id="posFilter">
+        <button type="button" class="ms-btn" id="posBtn">Todos los puestos</button>
+        <div class="ms-panel" id="posPanel">
+          <div class="ms-actions">
+            <button type="button" data-act="all">Seleccionar todos</button>
+            <button type="button" data-act="none">Limpiar</button>
+          </div>
+          <div class="ms-list" id="posList"></div>
+        </div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Jugador</label>
+      <div class="multiselect" id="playerFilter">
+        <button type="button" class="ms-btn" id="playerBtn">Todos los jugadores</button>
+        <div class="ms-panel" id="playerPanel">
+          <input type="text" class="ms-search" id="playerSearch" placeholder="Buscar jugador...">
+          <div class="ms-actions">
+            <button type="button" data-act="all">Seleccionar todos</button>
+            <button type="button" data-act="none">Limpiar</button>
+          </div>
+          <div class="ms-list" id="playerList"></div>
+        </div>
+      </div>
+    </div>
+    <div class="field">
+      <label for="metricSelect">Métrica</label>
+      <select id="metricSelect"></select>
+    </div>
+  </div>
+
+  <div class="summary" id="summaryCards"></div>
+
+  <div class="chart-wrap">
+    <div class="chart-title">
+      <h2 id="chartTitle">Promedio de BiG (s) por partido</h2>
+      <span class="avg-line-note" id="chartNote"></span>
+    </div>
+    <div class="chart-scroll">
+      <div class="chart-inner">
+        <div class="plot-row">
+          <div class="yaxis" id="yaxis"></div>
+          <div class="plot-area" id="plotArea">
+            <div class="bars-row" id="barsRow"></div>
+          </div>
+        </div>
+        <div class="sub-row">
+          <div class="yaxis"></div>
+          <div class="cols-row" id="logosRow"></div>
+        </div>
+        <div class="sub-row">
+          <div class="yaxis"></div>
+          <div class="cols-row" id="labelsRow"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="board">
+    <h2 id="boardTitle">Ranking de jugadores</h2>
+    <div class="board-sub" id="boardSub"></div>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>Jugador</th><th>Posición</th>
+          <th class="num" id="boardMetricHead">Prom. BiG (s)</th>
+          <th class="num">Partidos</th>
+        </tr>
+      </thead>
+      <tbody id="boardBody"></tbody>
+    </table>
+  </div>
+
+  <footer>SIC Rugby · Datos: Ball in Play (GPS) · BiG (s) = duración media de intervención por secuencia</footer>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script src="payload.js"></script>
+<script>
+const DATA = window.__SIC_DATA__;
+const LOGOS = window.__SIC_LOGOS__;
+
+function logoSrc(key){
+  if(!key || !LOGOS[key]) return null;
+  return "data:image/png;base64," + LOGOS[key];
+}
+document.getElementById('sicLogo').src = logoSrc('SIC');
+
+const METRICS = {
+  avgBiG:   { label:"BiG (s) — promedio de intervención", short:"BiG (s)", team:"teamAvgBiG", unit:"s", kind:"seconds-dec", agg:"avg" },
+  distTotal:{ label:"Distancia total recorrida", short:"Distancia", unit:"m", kind:"int-unit", agg:"sum" },
+  hsrTotal: { label:"HSR — carrera de alta velocidad (>5 m/s)", short:"HSR", unit:"m", kind:"int-unit", agg:"sum" },
+  acelAlta: { label:"Aceleraciones de alta intensidad", short:"Acels. altas", unit:"", kind:"int", agg:"sum" },
+  contactos:{ label:"Contactos", short:"Contactos", unit:"", kind:"int", agg:"sum" },
+  durTotal: { label:"Duración total en cancha", short:"Duración", unit:"", kind:"mmss", agg:"sum" },
+};
+
+const partidoOrder = DATA.partidoOrder;
+const allPlayers = DATA.players.slice().sort();
+
+// ---- Build player -> position map (position is constant per player across matches) ----
+const POSITION_ORDER = ["Pilar","Hooker","Segunda Linea","Tercera Linea","Medio Scrum","Apertura","Centro","Wing","Fullback"];
+const playerPosition = {};
+partidoOrder.forEach(pk=>{
+  DATA.matches[pk].players.forEach(p=>{ playerPosition[p.jugador] = p.posicion; });
+});
+const allPositions = POSITION_ORDER.filter(pos => Object.values(playerPosition).includes(pos));
+Object.values(playerPosition).forEach(pos=>{ if(!allPositions.includes(pos)) allPositions.push(pos); });
+
+// ---- State: empty Set = "todos" (sin filtro) ----
+let state = { players: new Set(), positions: new Set(), metric: "avgBiG" };
+
+// ---- Metric select ----
+const metricSelect = document.getElementById('metricSelect');
+metricSelect.innerHTML = Object.keys(METRICS).map(k=>`<option value="${k}">${METRICS[k].short}</option>`).join('');
+metricSelect.addEventListener('change', e=>{ state.metric = e.target.value; render(); });
+
+// ---- Generic multi-select dropdown component ----
+function setupMultiSelect({ rootId, btnId, listId, items, selectedSet, allBtnLabel, itemLabel, itemSub, onChange, searchId }){
+  const root = document.getElementById(rootId);
+  const btn = document.getElementById(btnId);
+  const list = document.getElementById(listId);
+  const search = searchId ? document.getElementById(searchId) : null;
+  const getItems = typeof items === 'function' ? items : () => items;
+
+  function updateBtnLabel(){
+    if(selectedSet.size === 0){ btn.textContent = allBtnLabel; return; }
+    if(selectedSet.size === 1){ btn.textContent = itemLabel([...selectedSet][0]); return; }
+    btn.textContent = selectedSet.size + " seleccionados";
+  }
+
+  function renderList(filterText){
+    const q = (filterText || "").trim().toLowerCase();
+    const currentItems = getItems();
+    const filtered = q ? currentItems.filter(it => itemLabel(it).toLowerCase().includes(q)) : currentItems;
+    if(filtered.length === 0){
+      list.innerHTML = '<div class="ms-empty">Sin resultados</div>';
+      return;
+    }
+    list.innerHTML = filtered.map(it => {
+      const checked = selectedSet.has(it) ? 'checked' : '';
+      const sub = itemSub ? itemSub(it) : '';
+      return `<label class="ms-item"><input type="checkbox" data-val="${it}" ${checked}><span>${itemLabel(it)}</span>${sub?`<span class="sub">${sub}</span>`:''}</label>`;
+    }).join('');
+    list.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+      cb.addEventListener('change', ()=>{
+        const v = cb.getAttribute('data-val');
+        if(cb.checked) selectedSet.add(v); else selectedSet.delete(v);
+        updateBtnLabel();
+        onChange();
+      });
+    });
+  }
+
+  btn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    const willOpen = !root.classList.contains('open');
+    document.querySelectorAll('.multiselect.open').forEach(el=>el.classList.remove('open'));
+    if(willOpen){
+      root.classList.add('open');
+      renderList(search ? search.value : "");
+      if(search) search.focus();
+    }
+  });
+
+  root.querySelectorAll('.ms-actions button').forEach(actionBtn=>{
+    actionBtn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      if(actionBtn.dataset.act === 'all'){ getItems().forEach(it=>selectedSet.add(it)); }
+      else { selectedSet.clear(); }
+      updateBtnLabel();
+      renderList(search ? search.value : "");
+      onChange();
+    });
+  });
+
+  if(search){
+    search.addEventListener('input', ()=> renderList(search.value));
+    search.addEventListener('click', e=>e.stopPropagation());
+  }
+  const panel = root.querySelector('.ms-panel');
+  panel.addEventListener('click', e=>e.stopPropagation());
+
+  updateBtnLabel();
+}
+
+document.addEventListener('click', ()=>{
+  document.querySelectorAll('.multiselect.open').forEach(el=>el.classList.remove('open'));
+});
+
+setupMultiSelect({
+  rootId:'posFilter', btnId:'posBtn', listId:'posList',
+  items: allPositions, selectedSet: state.positions,
+  allBtnLabel: 'Todos los puestos',
+  itemLabel: (p)=>p,
+  onChange: ()=>{ pruneInvalidPlayerSelection(); render(); }
+});
+
+setupMultiSelect({
+  rootId:'playerFilter', btnId:'playerBtn', listId:'playerList', searchId:'playerSearch',
+  items: ()=> state.positions.size === 0 ? allPlayers : allPlayers.filter(p=>state.positions.has(playerPosition[p])),
+  selectedSet: state.players,
+  allBtnLabel: 'Todos los jugadores',
+  itemLabel: (p)=>p,
+  itemSub: (p)=>playerPosition[p] || '',
+  onChange: ()=>{ render(); }
+});
+
+// If a position filter removes players that were individually selected, drop them
+function pruneInvalidPlayerSelection(){
+  if(state.positions.size === 0 || state.players.size === 0) return;
+  [...state.players].forEach(p=>{
+    if(!state.positions.has(playerPosition[p])) state.players.delete(p);
+  });
+  document.getElementById('playerBtn').textContent =
+    state.players.size === 0 ? 'Todos los jugadores' :
+    (state.players.size === 1 ? [...state.players][0] : state.players.size + ' seleccionados');
+}
+
+// ---- Helpers ----
+function getPlayerRowInMatch(matchKey, playerName){
+  const m = DATA.matches[matchKey];
+  return m.players.find(p=>p.jugador === playerName);
+}
+
+function isEligible(playerName){
+  const pos = playerPosition[playerName];
+  const posOk = state.positions.size === 0 || state.positions.has(pos);
+  const playerOk = state.players.size === 0 || state.players.has(playerName);
+  return posOk && playerOk;
+}
+
+function eligiblePlayers(){
+  return allPlayers.filter(isEligible);
+}
+
+function valueForSelection(matchKey, metricKey){
+  const m = DATA.matches[matchKey];
+  const rows = m.players.filter(p => isEligible(p.jugador));
+  if(metricKey === "avgBiG"){
+    const vals = rows.map(p=>p.avgBiG).filter(v=>v!==null && v!==undefined);
+    return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
+  }
+  let total = 0, any = false;
+  rows.forEach(p=>{
+    const v = p[metricKey];
+    if(v !== null && v !== undefined){ total += v; any = true; }
+  });
+  return any ? total : null;
+}
+
+function selectionLabel(){
+  const posPart = state.positions.size === 0 ? null :
+    (state.positions.size === 1 ? [...state.positions][0] : state.positions.size + ' puestos');
+  const playerPart = state.players.size === 0 ? null :
+    (state.players.size === 1 ? [...state.players][0] : state.players.size + ' jugadores');
+  if(playerPart && posPart) return `${playerPart} · ${posPart}`;
+  if(playerPart) return playerPart;
+  if(posPart) return posPart;
+  return 'Equipo completo';
+}
+
+function mmss(totalSeconds){
+  const s = Math.round(totalSeconds);
+  const m = Math.floor(s/60);
+  const rem = s%60;
+  return `${m}:${rem.toString().padStart(2,'0')}`;
+}
+
+function fmt(v, metricKey){
+  if(v === null || v === undefined) return "—";
+  const metric = METRICS[metricKey];
+  if(metric.kind === "mmss") return mmss(v) + " min";
+  if(metric.kind === "seconds-dec") return (Math.round(v*100)/100).toLocaleString('es-AR') + " " + metric.unit;
+  if(metric.kind === "int-unit") return Math.round(v).toLocaleString('es-AR') + " " + metric.unit;
+  return Math.round(v).toLocaleString('es-AR');
+}
+
+function fmtShort(v, metricKey){
+  // compact value used inside bars / axis ticks
+  if(v === null || v === undefined) return "—";
+  const metric = METRICS[metricKey];
+  if(metric.kind === "mmss") return mmss(v);
+  if(metric.kind === "seconds-dec") return (Math.round(v*100)/100).toLocaleString('es-AR');
+  return Math.round(v).toLocaleString('es-AR');
+}
+
+const tooltip = document.getElementById('tooltip');
+
+function render(){
+  renderSummary();
+  renderChart();
+  renderBoard();
+}
+
+function renderSummary(){
+  const metric = METRICS[state.metric];
+  const vals = partidoOrder.map(pk => valueForSelection(pk, state.metric)).filter(v=>v!==null && v!==undefined);
+  const box = document.getElementById('summaryCards');
+
+  if(vals.length === 0){
+    box.innerHTML = `<div class="card" style="grid-column:1/-1"><div class="label">Sin datos</div><div class="value" style="font-size:15px;">No hay registros de ${metric.short} para esta selección.</div></div>`;
+    return;
+  }
+
+  const avg = vals.reduce((a,b)=>a+b,0)/vals.length;
+  const max = Math.max(...vals);
+  const min = Math.min(...vals);
+  const maxIdx = partidoOrder.filter(pk => valueForSelection(pk, state.metric) === max)[0];
+  const minIdx = partidoOrder.filter(pk => valueForSelection(pk, state.metric) === min)[0];
+
+  const who = selectionLabel();
+
+  box.innerHTML = `
+    <div class="card">
+      <div class="label">Promedio · ${metric.short}</div>
+      <div class="value">${fmt(avg, state.metric)}</div>
+      <div class="sub">${who} · ${vals.length} partidos con datos</div>
+    </div>
+    <div class="card">
+      <div class="label">Partidos con registro</div>
+      <div class="value">${vals.length}/${partidoOrder.length}</div>
+      <div class="sub">de la temporada 2026</div>
+    </div>
+    <div class="card">
+      <div class="label">Máximo</div>
+      <div class="value">${fmt(max, state.metric)}</div>
+      <div class="sub">vs ${DATA.matches[maxIdx].rival}</div>
+    </div>
+    <div class="card">
+      <div class="label">Mínimo</div>
+      <div class="value">${fmt(min, state.metric)}</div>
+      <div class="sub">vs ${DATA.matches[minIdx].rival}</div>
+    </div>
+  `;
+}
+
+function renderChart(){
+  const metric = METRICS[state.metric];
+  document.getElementById('chartTitle').textContent = `${selectionLabel()} — ${metric.label}`;
+
+  const rows = partidoOrder.map(pk => ({
+    key: pk,
+    rival: DATA.matches[pk].rival,
+    logo: DATA.matches[pk].logo,
+    value: valueForSelection(pk, state.metric)
+  }));
+
+  const values = rows.map(r=>r.value).filter(v=>v!==null && v!==undefined);
+  const maxVal = values.length ? Math.max(...values) : 1;
+  const avgVal = values.length ? values.reduce((a,b)=>a+b,0)/values.length : null;
+  const niceMax = maxVal <= 0 ? 1 : maxVal * 1.18;
+
+  document.getElementById('chartNote').textContent =
+    state.metric === "avgBiG"
+      ? "Promedio de duración de intervención por secuencia · línea punteada = promedio general"
+      : (METRICS[state.metric].agg === "sum" ? "Total acumulado en el partido · línea punteada = promedio general" : "");
+
+  // ---- Explicit pixel width so bars / logos / labels always line up,
+  // regardless of how many matches there are (fixes clipped-columns bug) ----
+  const n = rows.length;
+  const rootStyle = getComputedStyle(document.documentElement);
+  const colW = parseFloat(rootStyle.getPropertyValue('--col-w'));
+  const colGap = parseFloat(rootStyle.getPropertyValue('--col-gap'));
+  const totalColsWidth = n * colW + (n - 1) * colGap;
+  const plotAreaEl = document.getElementById('plotArea');
+  plotAreaEl.style.width = totalColsWidth + 'px';
+  document.querySelectorAll('#logosRow, #labelsRow').forEach(el=>{
+    el.style.width = totalColsWidth + 'px';
+  });
+
+  // ---- Y axis ticks ----
+  const yaxis = document.getElementById('yaxis');
+  yaxis.innerHTML = "";
+  const steps = 4;
+  for(let i=0;i<=steps;i++){
+    const v = niceMax * i/steps;
+    const pct = (v/niceMax)*100;
+    const lbl = document.createElement('span');
+    lbl.style.bottom = pct + '%';
+    lbl.textContent = fmtShort(v, state.metric);
+    yaxis.appendChild(lbl);
+  }
+
+  // ---- Plot area: grid lines + avg line ----
+  const plotArea = document.getElementById('plotArea');
+  plotArea.querySelectorAll('.grid-line, .avg-line').forEach(el=>el.remove());
+  for(let i=1;i<=steps;i++){
+    const pct = (i/steps)*100;
+    const gl = document.createElement('div');
+    gl.className = 'grid-line';
+    gl.style.bottom = pct + '%';
+    plotArea.appendChild(gl);
+  }
+  if(avgVal !== null && niceMax > 0){
+    const avgPct = Math.min((avgVal/niceMax)*100, 100);
+    const line = document.createElement('div');
+    line.className = 'avg-line';
+    line.style.bottom = avgPct + '%';
+    const tag = document.createElement('span');
+    tag.className = 'avg-tag';
+    tag.textContent = 'Prom. ' + fmtShort(avgVal, state.metric);
+    line.appendChild(tag);
+    plotArea.appendChild(line);
+  }
+
+  // ---- Bars ----
+  const barsRow = document.getElementById('barsRow');
+  barsRow.innerHTML = "";
+  rows.forEach(r=>{
+    const col = document.createElement('div');
+    col.className = 'bar-col';
+
+    const bar = document.createElement('div');
+    const hasVal = r.value !== null && r.value !== undefined;
+    bar.className = 'bar' + (hasVal ? '' : ' empty');
+    const heightPct = hasVal ? Math.max((r.value / niceMax) * 100, 2) : 4;
+    bar.style.height = heightPct + '%';
+
+    if(hasVal){
+      const valLbl = document.createElement('div');
+      valLbl.className = 'bar-val';
+      valLbl.textContent = fmtShort(r.value, state.metric);
+      bar.appendChild(valLbl);
+    }
+
+    bar.addEventListener('mousemove', (e)=>{
+      tooltip.style.display = 'block';
+      tooltip.style.left = (e.clientX + 14) + 'px';
+      tooltip.style.top = (e.clientY - 10) + 'px';
+      tooltip.innerHTML = `<b>vs ${r.rival}</b><br>${metric.short}: ${fmt(r.value, state.metric)}`;
+    });
+    bar.addEventListener('mouseleave', ()=>{ tooltip.style.display = 'none'; });
+
+    col.appendChild(bar);
+    barsRow.appendChild(col);
+  });
+
+  // ---- Logos row ----
+  const logosRow = document.getElementById('logosRow');
+  logosRow.innerHTML = "";
+  rows.forEach(r=>{
+    const cell = document.createElement('div');
+    cell.className = 'col-cell';
+    const logoUrl = logoSrc(r.logo);
+    if(logoUrl){
+      const img = document.createElement('img');
+      img.className = 'bar-logo';
+      img.src = logoUrl;
+      img.alt = r.rival;
+      cell.appendChild(img);
+    } else {
+      const spacer = document.createElement('div');
+      spacer.className = 'bar-logo';
+      cell.appendChild(spacer);
+    }
+    logosRow.appendChild(cell);
+  });
+
+  // ---- Labels row ----
+  const labelsRow = document.getElementById('labelsRow');
+  labelsRow.innerHTML = "";
+  rows.forEach(r=>{
+    const cell = document.createElement('div');
+    cell.className = 'col-cell';
+    const label = document.createElement('div');
+    label.className = 'bar-label';
+    label.textContent = r.rival;
+    cell.appendChild(label);
+    labelsRow.appendChild(cell);
+  });
+}
+
+function renderBoard(){
+  const metric = METRICS[state.metric];
+  document.getElementById('boardTitle').textContent =
+    state.metric === "avgBiG" ? "Ranking — promedio de BiG (s) en la temporada" : `Ranking — ${metric.short} acumulado en la temporada`;
+  document.getElementById('boardSub').textContent =
+    `Filtro activo: ${selectionLabel()} · calculado sobre los partidos con datos registrados para cada jugador.`;
+  document.getElementById('boardMetricHead').textContent =
+    state.metric === "avgBiG" ? "Prom. BiG (s)" : (state.metric === "durTotal" ? "Duración total" : `Total ${metric.short}`);
+
+  const pool = eligiblePlayers();
+  const results = pool.map(p=>{
+    let vals = [];
+    partidoOrder.forEach(pk=>{
+      const row = getPlayerRowInMatch(pk, p);
+      if(row && row[state.metric] !== null && row[state.metric] !== undefined){
+        vals.push(row[state.metric]);
+      }
+    });
+    if(vals.length === 0) return null;
+    const value = state.metric === "avgBiG"
+      ? vals.reduce((a,b)=>a+b,0)/vals.length
+      : vals.reduce((a,b)=>a+b,0);
+    return { player:p, posicion: playerPosition[p], value, matches: vals.length };
+  }).filter(Boolean).sort((a,b)=>b.value-a.value);
+
+  const body = document.getElementById('boardBody');
+  if(results.length === 0){
+    body.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--gris);padding:18px;">Ningún jugador coincide con el filtro seleccionado.</td></tr>`;
+    return;
+  }
+
+  const maxV = results[0].value;
+  const highlight = state.players.size > 0 ? state.players : null;
+  body.innerHTML = results.map((r,i)=>`
+    <tr${highlight && highlight.has(r.player) ? ' style="background:var(--celeste-pale)"' : ''}>
+      <td class="rank">${i+1}</td>
+      <td class="name">${r.player}</td>
+      <td><span class="pos-chip">${r.posicion}</span></td>
+      <td class="num">
+        ${fmt(r.value, state.metric)}
+        <div class="bar-mini" style="width:${Math.max((r.value/maxV)*70,3)}px;"></div>
+      </td>
+      <td class="num">${r.matches}</td>
+    </tr>
+  `).join('');
+}
+
+document.getElementById('matchCount').textContent = partidoOrder.length + " partidos";
+render();
+</script>
+</body>
+</html>

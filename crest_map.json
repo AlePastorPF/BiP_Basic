@@ -1,0 +1,23 @@
+{
+  "_comment": "Mapa manual de cada codigo de Partido (columna A del Excel) a su escudo y nombre visible. Si aparece un partido nuevo que el script no reconoce automaticamente, agregalo aca: la clave es el valor EXACTO de la columna Partido, 'logo' es el nombre de archivo (sin extension) dentro de assets/logos/, y 'rival' es el texto que se muestra debajo de la barra.",
+
+  "SIC_AA":          { "logo": "Alumni",       "rival": "Alumni" },
+  "SIC_AA_2":        { "logo": "Alumni",       "rival": "Alumni (V2)" },
+  "SIC_BA":          { "logo": "BA",           "rival": "BACRC" },
+  "SIC_BAC":         { "logo": "BAC",          "rival": "BAC" },
+  "SIC_BAC_2":       { "logo": "BAC",          "rival": "BAC (V2)" },
+  "SIC_CASI":        { "logo": "CASI",         "rival": "CASI" },
+  "SIC_Champagnat":  { "logo": "Champagnat",   "rival": "Champagnat" },
+  "SIC_Champagnat_2":{ "logo": "Champagnat",   "rival": "Champagnat (V2)" },
+  "SIC_CRBV":        { "logo": "CRBV",         "rival": "CRBV" },
+  "SIC_CUBA":        { "logo": "CUBA",         "rival": "CUBA" },
+  "SIC_Hindu":       { "logo": "Hindu",        "rival": "Hindu" },
+  "SIC_Hindu_2":     { "logo": "Hindu",        "rival": "Hindu (V2)" },
+  "SIC_LMRC_2":      { "logo": "Los_Matreros", "rival": "Los Matreros (V2)" },
+  "SIC_LPRC":        { "logo": "La_Plata",     "rival": "La Plata RC" },
+  "SIC_LPRC_2":      { "logo": "La_Plata",     "rival": "La Plata RC (V2)" },
+  "SIC_LT":          { "logo": "Los_Tilos",    "rival": "Los Tilos" },
+  "SIC_Newman":      { "logo": "Newman",       "rival": "Newman" },
+  "SIC_Newman_2":    { "logo": "Newman",       "rival": "Newman (V2)" },
+  "SIC_Plaza":       { "logo": "Plaza",        "rival": "Plaza" }
+}
